@@ -1,1 +1,7 @@
 = Ombre double
+
+== install
+
+----
+python -m venv venv
+----
