@@ -1,7 +1,65 @@
 = Ombre double
 
-== install
+== Optionally use virtual environment
+
+[source,bash]
+----
+$> python -m venv .venv
+$> source .venv/bin/activate
+----
+
+== install package
+
+[source,bash]
+----
+$> python -m pip install .
+----
+
+== usage
+
+[source,bash]
+----
+$> ombre_double -h
+usage: ombre_double [-h] [--config CONFIG] [--print_config[=flags]] [--width WIDTH] [--height HEIGHT] [--shift SHIFT] [--iterations ITERATIONS] [--silent {true,false}] target_image1_path target_image2_path filter_image1_path filter_image2_path
+
+positional arguments:
+  target_image1_path    (required, type: str)
+  target_image2_path    (required, type: str)
+  filter_image1_path    (required, type: str)
+  filter_image2_path    (required, type: str)
+
+options:
+  -h, --help            Show this help message and exit.
+  --config CONFIG       Path to a configuration file.
+  --print_config[=flags]
+                        Print the configuration after applying all other arguments and exit. The optional flags customizes the output and are one or more keywords separated by comma. The supported flags are: comments, skip_default, skip_null.
+  --width WIDTH         (type: int, default: 512)
+  --height HEIGHT       (type: int, default: 512)
+  --shift SHIFT         (type: int, default: 10)
+  --iterations ITERATIONS
+                        (type: int, default: 10000)
+  --silent {true,false}
+                        (type: bool, default: False)
 
 ----
-python -m venv venv
+
+== example
+
+with input images :
+
+image:samples/lena.png[lena.png]
+image:samples/mona.png[mona.png]
+
+[source,bash]
 ----
+$> ombre_double samples/lena.png samples/mona.png  samples/mole.png  samples/lemo.png --width 200 --height 200 --shift 5
+training ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:08
+----
+
+will generates:
+
+image:samples/lemo.png[lena.png]
+image:samples/mole.png[mona.png]
+
+and display the expected result:
+image:samples/Figure_1.png[fig1]

@@ -1,0 +1,12 @@
+.gitignore
+README.adoc
+pyproject.toml
+ombre_double/__main__.py
+ombre_double.egg-info/PKG-INFO
+ombre_double.egg-info/SOURCES.txt
+ombre_double.egg-info/dependency_links.txt
+ombre_double.egg-info/entry_points.txt
+ombre_double.egg-info/requires.txt
+ombre_double.egg-info/top_level.txt
+samples/lena.png
+samples/mona.png

@@ -1,0 +1,2 @@
+[console_scripts]
+ombre_double = ombre_double.__main__:main

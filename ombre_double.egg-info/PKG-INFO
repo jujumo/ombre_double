@@ -1,0 +1,9 @@
+Metadata-Version: 2.1
+Name: ombre_double
+Version: 1.0.0
+Requires-Dist: jsonargparse
+Requires-Dist: numpy
+Requires-Dist: torch
+Requires-Dist: torchvision
+Requires-Dist: matplotlib
+Requires-Dist: rich

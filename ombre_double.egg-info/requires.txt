@@ -1,0 +1,6 @@
+jsonargparse
+numpy
+torch
+torchvision
+matplotlib
+rich

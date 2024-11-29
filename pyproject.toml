@@ -2,12 +2,21 @@
 requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+packages = ["ombre_double"]
+
 [project]
-name = "sandbox"
+name = "ombre_double"
 version="1.0.0"
 dependencies = [
+    "jsonargparse",
     "numpy",
     "torch",
     "torchvision",
     "matplotlib",
+    "rich"
 ]
+
+
+[project.scripts]
+ombre_double="ombre_double.__main__:main"
