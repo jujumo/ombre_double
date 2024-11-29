@@ -8,7 +8,7 @@ import torchvision.transforms as transforms
 from PIL import Image
 from rich.progress import track
 import matplotlib.pyplot as plt
-from time import sleep
+from typing import Optional, Tuple
 
 
 # External cost function to compute the loss
@@ -25,8 +25,8 @@ class ImageReconstructionModel(nn.Module):
         super().__init__()
         # Define two learnable matrices A and B
         self.shift = shift
-        self.A = nn.Parameter(torch.zeros(1, 1, height, width+self.shift))  # Matrix A, 256x256 grayscale image
-        self.B = nn.Parameter(torch.zeros(1, 1, height, width+self.shift))  # Matrix B, 256x256 grayscale image
+        self.A = nn.Parameter(torch.ones(1, 1, height, width+self.shift) * -1)  # Matrix A, 256x256 grayscale image
+        self.B = nn.Parameter(torch.ones(1, 1, height, width+self.shift) * -1)  # Matrix B, 256x256 grayscale image
 
     def forward(self):
         # Predict the first and second images based on A and B
@@ -39,11 +39,6 @@ class ImageReconstructionModel(nn.Module):
         pred1 = torch.multiply(a1, b2)
         pred2 = torch.multiply(a2, b1)
         return pred1, pred2
-
-    def get_filters(self):
-        a = torch.sigmoid(self.A).detach().numpy()
-        b = torch.sigmoid(self.B).detach().numpy()
-        return a, b
 
 
 # Function to load and preprocess images (convert to grayscale and resize)
@@ -66,7 +61,7 @@ def train_model(
         num_epochs: int = 500,
         learning_rate: float = 1e-3,
         silent: bool = False
-):
+) -> Tuple:
     # Initialize model and optimizer
     model = ImageReconstructionModel(width=width, height=height, shift=shift)
     optimizer = optim.RMSprop(model.parameters(), lr=learning_rate)
@@ -82,7 +77,10 @@ def train_model(
         optimizer.step()
 
     # Return the learned matrices A and B
-    return *model.get_filters(), pred1.detach().numpy(), pred2.detach().numpy(),
+    return (torch.sigmoid(model.A).detach().numpy(),
+            torch.sigmoid(model.B).detach().numpy(),
+            pred1.detach().numpy(),
+            pred2.detach().numpy(),)
 
 
 # Visualize the results
@@ -107,31 +105,47 @@ def visualize_results(A, B, pred1, pred2):
 
 
 def evaluate(
-        target_image1_path: str,
-        target_image2_path: str,
-        filter_image1_path: str,
-        filter_image2_path: str,
-        width: int = 512,
-        height: int = 512,
-        shift: int = 10,
+        target1: str,
+        target2: str,
+        filter1: Optional[str],
+        filter2: Optional[str],
+        width: int = 32,
+        height: int = 32,
+        shift: int = 2,
         iterations: int = 10000,
         silent: bool = False
 ):
-    # Example usage
-    target1 = load_image(target_image1_path, width=width, height=height)
-    target2 = load_image(target_image2_path, width=width, height=height)
+    """
+    :param target1: input image1 path.
+    :param target2: input image2 path.
+    :param filter1: optionally output filter1 path.
+    :param filter2: optionally output filter2 path.
+    :param width: working image width in pixels.
+    :param height: working image height in pixels.
+    :param shift: shift to apply between filters in pixels.
+    :param iterations: number of iterations.
+    :param silent:  silence operation.
+    :return:
+    """
+    target_image1 = load_image(target1, width=width, height=height)
+    target_image2 = load_image(target2, width=width, height=height)
     A, B, pred1, pred2 = train_model(
-        target1, target2,
+        target_image1, target_image2,
         width=width, height=height, shift=shift,
         num_epochs=iterations,
         silent=silent
     )
-    filter_a = Image.fromarray(np.uint8(A[0, 0] * 255))
-    filter_b = Image.fromarray(np.uint8(B[0, 0] * 255))
-    filter_a.save(filter_image1_path)
-    filter_b.save(filter_image2_path)
-    # Visualize the learned matrices and predicted images
-    visualize_results(A, B, pred1, pred2)
+
+    if filter1 is not None:
+        filter_a = Image.fromarray(np.uint8(A[0, 0] * 255))
+        filter_a.save(filter1)
+    if filter2 is not None:
+        filter_b = Image.fromarray(np.uint8(B[0, 0] * 255))
+        filter_b.save(filter2)
+
+    if not silent:
+        # Visualize the learned matrices and predicted images
+        visualize_results(A, B, pred1, pred2)
 
 
 def main():
