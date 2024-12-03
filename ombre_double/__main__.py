@@ -41,12 +41,22 @@ class ImageReconstructionModel(nn.Module):
         return pred1, pred2
 
 
+class SRGBToLinearTransform:
+    def __call__(self, img):
+        # Apply the power function approximation for linearization
+        # img = (img + 0.055) / 1.055
+        img = img ** 2.4
+        return img
+
+
 # Function to load and preprocess images (convert to grayscale and resize)
 def load_image(image_path, width, height):
     image = Image.open(image_path).convert('L')  # Convert to grayscale
+
     transform = transforms.Compose([
         transforms.Resize((height, width)),  # Resize to 256x256 for consistency
-        transforms.ToTensor()
+        transforms.ToTensor(),
+        SRGBToLinearTransform(),
     ])
     image_tensor = transform(image).unsqueeze(0)  # Add batch dimension
     return image_tensor
@@ -95,10 +105,10 @@ def visualize_results(A, B, pred1, pred2):
     ax[0, 1].set_title('Matrix B')
 
     # Show the predicted images
-    ax[1, 0].imshow(pred1[0, 0], cmap='gray')
+    ax[1, 0].imshow(np.pow(pred1[0, 0], 1./2.4), cmap='gray')
     ax[1, 0].set_title('Predicted Image 1')
 
-    ax[1, 1].imshow(pred2[0, 0], cmap='gray')
+    ax[1, 1].imshow(np.pow(pred2[0, 0], 1./2.4), cmap='gray')
     ax[1, 1].set_title('Predicted Image 2')
 
     plt.show()
@@ -109,10 +119,10 @@ def evaluate(
         target2: str,
         filter1: Optional[str],
         filter2: Optional[str],
-        width: int = 32,
-        height: int = 32,
-        shift: int = 2,
-        iterations: int = 10000,
+        width: int = 64,
+        height: int = 64,
+        shift: Optional[int] = None,
+        iterations: int = 5000,
         silent: bool = False
 ):
     """
@@ -127,6 +137,8 @@ def evaluate(
     :param silent:  silence operation.
     :return:
     """
+
+    shift = int(shift) if shift is not None else int(width / 20)
     target_image1 = load_image(target1, width=width, height=height)
     target_image2 = load_image(target2, width=width, height=height)
     A, B, pred1, pred2 = train_model(

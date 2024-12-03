@@ -47,19 +47,32 @@ options:
 
 with input images :
 
-image:samples/lena.png[lena.png]
-image:samples/mona.png[mona.png]
+image:samples/lincoln.png[lincoln.png,256]
+image:samples/mona.png[mona.png,256]
 
 [source,bash]
 ----
-$> ombre_double samples/lena.png samples/mona.png  samples/mole.png  samples/lemo.png --width 200 --height 200 --shift 5
+$> ombre_double samples/lincoln.png samples/mona.png  samples/lina1.png  samples/lina2.png --width 64 --height 64
 training ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:08
 ----
 
 will generates:
 
-image:samples/lemo.png[lena.png]
-image:samples/mole.png[mona.png]
+image:samples/lina1.png[lena.png,256]
+image:samples/lina2.png[mona.png,256]
 
 and display the expected result:
-image:samples/Figure_1.png[fig1]
+
+image:samples/Figure_1.png[fig1,512]
+
+Then follow https://github.com/jujumo/inkex_color_trace?tab=readme-ov-file#black-stripes-tutorial[black-stripes-tutorial]
+to transform this into masks:
+
+image::samples/lina1_stripes.svg[lina1,512]
+image::samples/lina2_stripes.svg[lina2,512]
+
+
+using OpenSCAD files link:samples/lina1.scad[lina1.scad] and link:samples/lina2.scad[lina2.scad]
+you can regenerate both STL files link:samples/lina1.stl[lina1.stl] and link:samples/lina2.stl[lina2.stl].
+
+More to come on this experiment....
